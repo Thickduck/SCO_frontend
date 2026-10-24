@@ -39,7 +39,7 @@ Create an account through the registration page, or sign in with an account conf
 - Overview of monthly spend, inventory, alerts, forecasts, and pending recommendations.
 - Resource inventory filters for region, environment, and owner, with resource details and utilization history.
 - Resource-level utilization charts, p95/p99 metrics, and anomaly review.
-- Individual and batch recommendation actions, with savings estimates and risk labels.
+- Dataset-driven recommendations for resources unattached and inactive across at least 14 days of metrics, and VMs with at least 14 days of data, p95/p99 CPU at or below 20%/30%, p95/p99 memory at or below 50%/60%, and no CPU or memory peaks above 90%. Individual and batch actions retain review status while a candidate remains eligible.
 - Cost breakdowns by environment and owner, forecast projections, and before/after savings.
 - Alert review, a what-if savings simulator, plain-language explanations, downloadable exports, and sustainability estimates.
 - Persistent light and dark themes, responsive layouts, loading/error/empty states, and action feedback.
@@ -48,7 +48,7 @@ New databases seeded with `npm run seed` include an admin account: `admin@cloud.
 
 ## Cost and safety notes
 
-The interface displays estimates returned by the backend. Treat pricing and sustainability values as illustrative; actual costs and environmental impact depend on workload, provider pricing, and infrastructure. The simulator only requests an estimate and does not change cloud resources. Review generated exports before using them, and validate resize recommendations against p95/p99 peaks and service-level requirements.
+The interface displays estimates returned by the backend. Treat pricing and sustainability values as illustrative; actual costs and environmental impact depend on workload, provider pricing, and infrastructure. Orphaned-resource suggestions use the resource's listed monthly cost; right-sizing suggestions estimate savings as 25% of that cost. Review generated exports before using them, and validate resize recommendations against p95/p99 peaks and service-level requirements. Recommendations are review suggestions only and do not change cloud resources.
 
 ## Checks
 
