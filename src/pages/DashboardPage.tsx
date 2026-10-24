@@ -5,9 +5,9 @@ import type { Alert, Recommendation } from '../types/api'
 import { useApiQuery } from '../hooks/useApiQuery'
 import { Icon } from '../components/Icon'
 import { Button, EmptyState, LoadState, PageHeader, Panel, StatCard, Tag } from '../components/UI'
-import { formatCurrency, formatDate, riskTone } from '../utils/format'
+import { formatCurrency, formatDate, riskTone, sumRecommendationSavings } from '../utils/format'
 
-export function DashboardPage({ userName }: { userName: string }) {
+export function DashboardPage({ userName, userRole = 'engineer' }: { userName: string; userRole?: string }) {
   const loadOverview = useCallback(async () => {
     const [inventory, costs, recommendations, alerts, costForecast, trend] = await Promise.all([
       api.inventoryStats(),
@@ -25,7 +25,7 @@ export function DashboardPage({ userName }: { userName: string }) {
     () => overview.data?.recommendations.filter((item) => item.status.toLowerCase() === 'pending') ?? [],
     [overview.data],
   )
-  const savings = pending.reduce((sum, item) => sum + item.estimated_monthly_saving, 0)
+  const savings = sumRecommendationSavings(pending)
   const highestRisk = overview.data?.alerts.filter((alert) => alert.severity.toLowerCase() === 'high').length ?? 0
   const stats = overview.data?.inventory
   const cost = overview.data?.costs
@@ -33,6 +33,7 @@ export function DashboardPage({ userName }: { userName: string }) {
   const trend = overview.data?.trend
   const recs = overview.data?.recommendations
   const alerts = overview.data?.alerts
+  const isEngineer = userRole.toLowerCase() === 'engineer'
 
   return (
     <>
@@ -57,16 +58,20 @@ export function DashboardPage({ userName }: { userName: string }) {
               {pending.length ? (
                 <>
                   <div className="opportunity-total"><strong>{formatCurrency(savings)}</strong><span>potential monthly savings</span></div>
-                  <div className="recommendation-list compact-list">
-                    {pending.slice(0, 3).map((item: Recommendation) => (
-                      <div className="recommendation-row" key={item.rec_id}>
-                        <div className="recommendation-symbol"><Icon name="recommendations" size={16} /></div>
-                        <div className="recommendation-copy"><strong>{item.action}</strong><span>{item.resource_id} · {item.reason}</span></div>
-                        <div className="recommendation-meta"><Tag tone={riskTone(item.risk_level)}>{item.risk_level} risk</Tag><strong>{formatCurrency(item.estimated_monthly_saving)}<small>/mo</small></strong></div>
+                  {isEngineer ? (
+                    <>
+                      <div className="recommendation-list compact-list">
+                        {pending.slice(0, 3).map((item: Recommendation) => (
+                          <div className="recommendation-row" key={item.rec_id}>
+                            <div className="recommendation-symbol"><Icon name="recommendations" size={16} /></div>
+                            <div className="recommendation-copy"><strong>{item.action}</strong><span>{item.resource_id} · {item.reason}</span></div>
+                            <div className="recommendation-meta"><Tag tone={riskTone(item.risk_level)}>{item.risk_level} risk</Tag><strong>{formatCurrency(item.estimated_monthly_saving)}<small>/mo</small></strong></div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                  <div className="panel-foot"><Link to="/recommendations">Review all recommendations <Icon name="chevron" size={14} /></Link></div>
+                      <div className="panel-foot"><Link to="/recommendations">Review all recommendations <Icon name="chevron" size={14} /></Link></div>
+                    </>
+                  ) : <p>{pending.length} pending recommendations. Resource-level actions are available in the engineer workspace.</p>}
                 </>
               ) : <EmptyState title="You’re all caught up" message="There are no pending recommendations right now." icon="overview" />}
             </Panel>
@@ -85,7 +90,7 @@ export function DashboardPage({ userName }: { userName: string }) {
           </div>
 
           <div className="dashboard-lower-grid">
-            <Panel title="Resource mix" subtitle="Inventory by resource category">
+            {isEngineer && <Panel title="Resource mix" subtitle="Inventory by resource category">
               <div className="resource-mix">
                 {[['Virtual machines', stats.total_vms, 'blue'], ['Block volumes', stats.total_volumes, 'violet'], ['Public IPs', stats.total_ips, 'amber']].map(([label, value, tone]) => (
                   <div className="mix-row" key={String(label)}><span className={`mix-indicator mix-${tone}`} /><span>{label}</span><strong>{Number(value).toLocaleString('en-IN')}</strong></div>
@@ -93,7 +98,7 @@ export function DashboardPage({ userName }: { userName: string }) {
                 <div className="mix-total"><span>Total tracked</span><strong>{stats.total_resources.toLocaleString('en-IN')} resources</strong></div>
               </div>
               <div className="panel-foot"><Link to="/inventory">View full inventory <Icon name="chevron" size={14} /></Link></div>
-            </Panel>
+            </Panel>}
             <Panel title="Latest alerts" subtitle="Usage patterns worth a closer look" action={<Tag tone={highestRisk ? 'danger' : 'success'}>{highestRisk} high priority</Tag>}>
               {alerts.length ? (
                 <div className="alert-list compact-list">

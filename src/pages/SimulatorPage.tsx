@@ -8,7 +8,7 @@ import { formatCurrency } from '../utils/format'
 export function SimulatorPage() {
   const [shutdown, setShutdown] = useState(true)
   const [rightsize, setRightsize] = useState(true)
-  const [result, setResult] = useState<{ simulatedMonthlySavings: number; message: string }>()
+  const [result, setResult] = useState<Awaited<ReturnType<typeof api.simulate>>>()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string>()
   const toast = useToast()
@@ -38,7 +38,7 @@ export function SimulatorPage() {
             <label className="scenario-option">
               <span className={`toggle ${shutdown ? 'toggle-on' : ''}`}><input type="checkbox" checked={shutdown} onChange={(event) => setShutdown(event.target.checked)} /><i /></span>
               <span className="scenario-icon"><Icon name="clock" size={18} /></span>
-              <span className="scenario-copy"><strong>Shut down development VMs at night</strong><small>Schedule non-production instances from 8 PM to 8 AM.</small></span>
+              <span className="scenario-copy"><strong>Schedule eligible development and staging VMs</strong><small>Use observed off-hours utilization to identify weekdays 8 PM–8 AM and weekend shutdown candidates.</small></span>
             </label>
             <label className="scenario-option">
               <span className={`toggle ${rightsize ? 'toggle-on' : ''}`}><input type="checkbox" checked={rightsize} onChange={(event) => setRightsize(event.target.checked)} /><i /></span>
@@ -46,7 +46,7 @@ export function SimulatorPage() {
               <span className="scenario-copy"><strong>Right-size underutilized resources</strong><small>Include resources whose usage suggests excess capacity.</small></span>
             </label>
           </div>
-          <div className="scenario-assumption"><Icon name="assistant" size={16} /><p>Illustrative assumptions: the backend estimates ₹1,450/month for scheduled development shutdowns and ₹2,300/month for right-sizing. Actual savings depend on workload and pricing.</p></div>
+          <div className="scenario-assumption"><Icon name="assistant" size={16} /><p>Estimates use only currently pending, metric-qualified recommendations and listed resource prices. Each resource’s combined savings are capped at its monthly cost. Review jobs, dependencies, and availability before scheduling.</p></div>
           <Button onClick={() => void simulate()} disabled={loading || (!shutdown && !rightsize)}>{loading && <span className="button-spinner" />}Run simulation</Button>
           <LoadState loading={false} error={error} />
         </Panel>
@@ -58,12 +58,12 @@ export function SimulatorPage() {
               <span className="simulation-period">estimated monthly savings</span>
               <div className="simulation-divider" />
               <p>{result.message}</p>
-              <div className="simulation-breakdown">{shutdown && <span><i className="mix-indicator mix-blue" />Night shutdown <strong>₹1,450/mo</strong></span>}{rightsize && <span><i className="mix-indicator mix-violet" />Right-sizing <strong>₹2,300/mo</strong></span>}</div>
+              <div className="simulation-breakdown">{shutdown && <span><i className="mix-indicator mix-blue" />Off-hours schedules <strong>{formatCurrency(result.breakdown?.shutdownDevAtNight ?? 0)}/mo</strong></span>}{rightsize && <span><i className="mix-indicator mix-violet" />Right-sizing <strong>{formatCurrency(result.breakdown?.rightsizeUnderutilized ?? 0)}/mo</strong></span>}</div>
             </>
           ) : <div className="simulation-empty"><span><Icon name="analytics" size={21} /></span><strong>Your scenario appears here</strong><p>Choose one or more assumptions, then run the simulation to estimate potential monthly savings.</p></div>}
         </Panel>
       </div>
-      <div className="assumption-note"><Icon name="assistant" size={15} /><span>The simulator uses fixed illustrative values returned by the API. It does not create, stop, resize, or delete cloud resources.</span></div>
+      <div className="assumption-note"><Icon name="assistant" size={15} /><span>The simulator is a review-only estimate. It does not create schedules or modify cloud resources.</span></div>
     </>
   )
 }

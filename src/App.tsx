@@ -22,6 +22,7 @@ import { ProfilePage } from './pages/ProfilePage'
 import { RecommendationsPage } from './pages/RecommendationsPage'
 import { SimulatorPage } from './pages/SimulatorPage'
 import { SustainabilityPage } from './pages/SustainabilityPage'
+import { getNavigationForRole } from './utils/navigation'
 
 class PageErrorBoundary extends Component<
   { children: ReactNode; onNavigate: (path: string) => void },
@@ -70,6 +71,13 @@ function AppContent() {
     }
   }, [user, path])
 
+  const allowedPath = !user || path === '/profile'
+    || getNavigationForRole(user.role).some((group) => group.items.some((item) => item.path === path))
+  const visiblePath = allowedPath ? path : '/'
+  useEffect(() => {
+    if (!allowedPath) window.history.replaceState({}, '', '/')
+  }, [allowedPath])
+
   function navigate(destination: string) {
     window.history.pushState({}, '', destination)
     setPath(destination)
@@ -91,7 +99,7 @@ function AppContent() {
   }
 
   const pages: Record<string, ReactNode> = {
-    '/': <DashboardPage userName={user.name} />,
+    '/': <DashboardPage userName={user.name} userRole={user.role} />,
     '/inventory': <InventoryPage />,
     '/analytics': <AnalyticsPage />,
     '/recommendations': <RecommendationsPage />,
@@ -104,18 +112,18 @@ function AppContent() {
     '/sustainability': <SustainabilityPage />,
     '/company': <CompanyPage user={user} />,
   }
-  if (path === '/profile') {
-    pages[path] = <ProfilePage user={user} onSave={updateProfile} />
+  if (visiblePath === '/profile') {
+    pages[visiblePath] = <ProfilePage user={user} onSave={updateProfile} />
   }
 
-  if (path === '/login' || path === '/register') {
-    return <AppShell user={user} path="/" navigate={navigate} onLogout={signOut} onToggleTheme={toggle} dark={dark}><DashboardPage userName={user.name} /></AppShell>
+  if (visiblePath === '/login' || visiblePath === '/register') {
+    return <AppShell user={user} path="/" navigate={navigate} onLogout={signOut} onToggleTheme={toggle} dark={dark}><DashboardPage userName={user.name} userRole={user.role} /></AppShell>
   }
 
   return (
-    <AppShell user={user} path={path} navigate={navigate} onLogout={signOut} onToggleTheme={toggle} dark={dark}>
-      <PageErrorBoundary key={path} onNavigate={navigate}>
-        {pages[path] ?? <DashboardPage userName={user.name} />}
+    <AppShell user={user} path={visiblePath} navigate={navigate} onLogout={signOut} onToggleTheme={toggle} dark={dark}>
+      <PageErrorBoundary key={visiblePath} onNavigate={navigate}>
+        {pages[visiblePath] ?? <DashboardPage userName={user.name} userRole={user.role} />}
       </PageErrorBoundary>
     </AppShell>
   )

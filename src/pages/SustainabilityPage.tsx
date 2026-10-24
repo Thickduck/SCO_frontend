@@ -19,7 +19,7 @@ export function SustainabilityPage() {
             <StatCard label="Annual carbon savings" value={`${(data.carbon_saved_kg_co2e_per_month * 12).toLocaleString('en-IN', { maximumFractionDigits: 1 })} kg`} caption="Based on the monthly estimate" icon="costs" tone="violet" />
           </div>
           <Panel title="How to read this estimate" subtitle="Sustainability values are indicative, not a carbon-accounting report">
-            <div className="sustainability-explain"><span className="sustainability-explain-icon"><Icon name="assistant" size={18} /></span><div><strong>Efficiency can reduce waste.</strong><p>Carbon and energy estimates depend on workload, infrastructure mix, grid intensity, and the assumptions behind the dataset. Use them as directional indicators, and validate against your organization’s reporting method.</p></div></div>
+            <div className="sustainability-explain"><span className="sustainability-explain-icon"><Icon name="assistant" size={18} /></span><div><strong>Estimate based on pending recommendations.</strong><p>{data.assumptions?.basis ?? 'Illustrative estimate. Validate against your organization’s reporting method.'}</p><p>Factors: {data.assumptions?.kwh_per_inr_saved ?? '—'} kWh per INR saved; {data.assumptions?.kg_co2e_per_kwh ?? '—'} kg CO₂e per kWh; {data.assumptions?.kg_co2e_per_tree_year ?? '—'} kg CO₂e per tree-year.</p></div></div>
           </Panel>
         </>
       )}

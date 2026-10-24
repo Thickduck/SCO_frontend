@@ -3,12 +3,13 @@ import type { FormEvent } from 'react'
 import { Button, PageHeader, Panel, Tag } from '../components/UI'
 import { useToast } from '../hooks/useToast'
 import type { ProfileUpdate, User } from '../types/api'
+import { normalizeWorkspaceRole } from '../utils/navigation'
 
 export function ProfilePage({ user, onSave }: { user: User; onSave: (profile: ProfileUpdate) => Promise<void> }) {
   const toast = useToast()
   const [name, setName] = useState(user.name)
   const [email, setEmail] = useState(user.email)
-  const [role, setRole] = useState(user.role)
+  const [role, setRole] = useState(normalizeWorkspaceRole(user.role))
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string>()
 
@@ -43,7 +44,7 @@ export function ProfilePage({ user, onSave }: { user: User; onSave: (profile: Pr
           <div className="profile-edit-fields">
             <label className="form-field"><span>Full name</span><input value={name} onChange={(event) => setName(event.target.value)} maxLength={120} required /></label>
             <label className="form-field"><span>Email address</span><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} maxLength={254} required /></label>
-            <label className="form-field"><span>Job description</span><input value={role} onChange={(event) => setRole(event.target.value)} maxLength={120} required /></label>
+            <label className="form-field"><span>Workspace role</span><select value={role} onChange={(event) => setRole(event.target.value)}><option value="engineer">Engineer — inventory and optimization</option><option value="finance">Finance — spend, forecasts, and reports</option><option value="leadership">Leadership — overview and business insights</option></select></label>
             <label className="form-field"><span>Account ID</span><input value={user.id} readOnly /></label>
           </div>
           {error && <div className="form-error" role="alert">{error}</div>}

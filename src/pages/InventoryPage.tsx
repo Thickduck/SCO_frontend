@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { api } from '../services/api'
 import type { InventoryResource } from '../types/api'
 import { useApiQuery } from '../hooks/useApiQuery'
-import { MetricChart } from '../components/Charts'
+import { MetricChart, NetworkChart } from '../components/Charts'
 import { Icon } from '../components/Icon'
 import { Button, EmptyState, LoadState, PageHeader, Panel, SelectField, StatCard, Tag } from '../components/UI'
 import { formatCurrency, formatDate, formatPercentile, getDistinct } from '../utils/format'
@@ -87,9 +87,10 @@ export function InventoryPage() {
               <div><span>Compute</span><strong>{detailResource?.vcpu ? `${detailResource.vcpu} vCPU` : 'Unavailable'}</strong></div><div><span>Memory</span><strong>{detailResource?.ram_gb ? `${detailResource.ram_gb} GB` : 'Unavailable'}</strong></div>
               <div><span>Disk</span><strong>{detailResource?.disk_size_gb} GB</strong></div><div><span>Created</span><strong>{detailResource && formatDate(detailResource.creation_date)}</strong></div>
             </div>
-            <Panel title="Utilization history" subtitle="Recent CPU, memory, and disk readings">
+            <Panel title="30-day utilization history" subtitle="Full CPU, memory, and disk history at 15-minute intervals">
               <LoadState loading={detail.loading} error={detail.error} onRetry={() => void detail.reload()} />
               {detail.data && <MetricChart data={detail.data.metrics} />}
+              {detail.data && <NetworkChart data={detail.data.metrics} />}
               {detail.data?.percentiles && <div className="percentile-strip"><span>p95 CPU <strong>{formatPercentile(detail.data.percentiles.p95_cpu)}</strong></span><span>p99 CPU <strong>{formatPercentile(detail.data.percentiles.p99_cpu)}</strong></span><span>p95 memory <strong>{formatPercentile(detail.data.percentiles.p95_memory)}</strong></span><span>p99 memory <strong>{formatPercentile(detail.data.percentiles.p99_memory)}</strong></span></div>}
             </Panel>
           </section>

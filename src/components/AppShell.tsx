@@ -4,12 +4,7 @@ import { Icon } from './Icon'
 import type { User } from '../types/api'
 import { api } from '../services/api'
 import { useApiQuery } from '../hooks/useApiQuery'
-
-export interface NavItem {
-  path: string
-  label: string
-  icon: string
-}
+import { getNavigationForRole, workspaceNavigation } from '../utils/navigation'
 
 interface AppShellProps {
   user: User
@@ -21,32 +16,12 @@ interface AppShellProps {
   children: ReactNode
 }
 
-const navigation: { heading: string; items: NavItem[] }[] = [
-  { heading: 'WORKSPACE', items: [
-    { path: '/', label: 'Overview', icon: 'overview' },
-    { path: '/inventory', label: 'Resource inventory', icon: 'inventory' },
-    { path: '/analytics', label: 'Utilization', icon: 'analytics' },
-    { path: '/recommendations', label: 'Recommendations', icon: 'recommendations' },
-  ] },
-  { heading: 'FINANCIAL CONTROL', items: [
-    { path: '/costs', label: 'Cost analysis', icon: 'costs' },
-    { path: '/forecast', label: 'Forecast', icon: 'forecast' },
-    { path: '/alerts', label: 'Alerts', icon: 'alerts' },
-    { path: '/simulator', label: 'What-if simulator', icon: 'simulator' },
-  ] },
-  { heading: 'TOOLS', items: [
-    { path: '/assistant', label: 'AI explain', icon: 'assistant' },
-    { path: '/export', label: 'Export center', icon: 'export' },
-    { path: '/sustainability', label: 'Sustainability', icon: 'leaf' },
-    { path: '/company', label: 'Company', icon: 'building' },
-  ] },
-]
-
 export function AppShell({ user, path, navigate, onLogout, onToggleTheme, dark, children }: AppShellProps) {
   const activePath = path === '/' ? '/' : path
   const alerts = useApiQuery(api.alerts, 'sidebar-alerts')
   const company = useApiQuery(api.company, 'sidebar-company')
   const [companyName, setCompanyName] = useState<string>()
+  const visibleNavigation = getNavigationForRole(user.role)
 
   useEffect(() => {
     const updateCompanyName = (event: Event) => {
@@ -69,7 +44,7 @@ export function AppShell({ user, path, navigate, onLogout, onToggleTheme, dark, 
           <span className="workspace-chevron">⌄</span>
         </button>
         <nav className="sidebar-nav" aria-label="Main navigation">
-          {navigation.map((group) => (
+          {visibleNavigation.map((group) => (
             <div className="nav-group" key={group.heading}>
               <p className="nav-heading">{group.heading}</p>
               {group.items.map((item) => (
@@ -99,7 +74,7 @@ export function AppShell({ user, path, navigate, onLogout, onToggleTheme, dark, 
       </aside>
       <div className="main-column">
         <header className="topbar">
-          <div className="breadcrumb"><span>Workspace</span><Icon name="chevron" size={13} /><strong>{activePath === '/profile' ? 'Profile' : navigation.flatMap((group) => group.items).find((item) => item.path === activePath)?.label ?? 'Overview'}</strong></div>
+          <div className="breadcrumb"><span>Workspace</span><Icon name="chevron" size={13} /><strong>{activePath === '/profile' ? 'Profile' : workspaceNavigation.flatMap((group) => group.items).find((item) => item.path === activePath)?.label ?? 'Overview'}</strong></div>
           <div className="topbar-actions">
             <button type="button" className="icon-button theme-button" onClick={onToggleTheme} aria-label={`Switch to ${dark ? 'light' : 'dark'} mode`} title={`Switch to ${dark ? 'light' : 'dark'} mode`}><Icon name={dark ? 'sun' : 'moon'} size={17} /></button>
             <span className="topbar-date">{new Intl.DateTimeFormat('en-IN', { dateStyle: 'medium' }).format(new Date())}</span>
