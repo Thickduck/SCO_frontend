@@ -76,7 +76,7 @@ export function DashboardPage({ userName }: { userName: string }) {
                 {[forecast.current_monthly_spend, forecast.forecast_30_days, forecast.forecast_60_days, forecast.forecast_90_days].map((value, index) => {
                   const values = [forecast.current_monthly_spend, forecast.forecast_30_days, forecast.forecast_60_days, forecast.forecast_90_days]
                   const max = Math.max(...values, 1)
-                  return <div className="trajectory-column" key={index}><span className="trajectory-value">{formatCurrency(value, true)}</span><i style={{ height: `${Math.max((value / max) * 100, 18)}%` }} /><small>{index === 0 ? 'Now' : `${index * 30} days`}</small></div>
+                  return <div className={`trajectory-column ${index > 0 ? 'trajectory-column-forecast' : ''}`} key={index}><span className="trajectory-value">{formatCurrency(value, true)}</span><i style={{ height: `${Math.max((value / max) * 100, 18)}%` }} /><small>{index === 0 ? 'Now' : `${index * 30} days`}</small></div>
                 })}
               </div>
               <div className="forecast-note"><span>Projected to increase by <strong>{trend.projected_growth_rate_pct}%</strong> over the next month.</span></div>
