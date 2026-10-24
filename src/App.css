@@ -1,23 +1,19 @@
 .app-shell { min-height: 100vh; }
 .sidebar {
   position: fixed; inset: 0 auto 0 0; z-index: 10; display: flex; flex-direction: column;
-  --surface: #e5e8eb;
-  --surface-soft: #eceef0;
-  --surface-hover: #d9dde1;
-  --text: #4c5259;
-  --text-strong: #252a30;
-  --muted: #6d747c;
-  --muted-2: #858c93;
-  --border: #d0d4d8;
-  --border-strong: #bfc5ca;
-  --accent: #53616e;
-  --accent-hover: #3e4a55;
-  --accent-soft: #d8dde1;
-  --accent-border: #bbc3ca;
-  --green: #a1c8a3;
-  --green-soft: #365848;
-  --red: #a34e58;
-  --red-soft: #f2e7e4;
+  --surface: #e8eaec;
+  --surface-soft: #f0f1f2;
+  --surface-hover: #dfe2e5;
+  --text: #4b5157;
+  --text-strong: #20252a;
+  --muted: #697178;
+  --muted-2: #858c92;
+  --border: #d5d9dc;
+  --border-strong: #c2c8cc;
+  --accent: #873b43;
+  --accent-hover: #6f2e35;
+  --accent-soft: #e9dfe1;
+  --accent-border: #d4c2c5;
   width: 252px; padding: 22px 15px 12px; background: var(--surface); border-right: 1px solid var(--border);
 }
 .brand, .auth-brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text-strong); text-align: left; }
@@ -513,24 +509,24 @@ svg { border-radius: 0; }
 .spinner, .button-spinner { border-radius: 50%; }
 .theme-button:focus-visible { outline-color: var(--accent); }
 :root[data-theme="dark"] .sidebar {
-  --surface: #191314;
-  --surface-soft: #26191a;
-  --surface-hover: #352022;
-  --text: #ded6d5;
-  --text-strong: #f5eeee;
-  --muted: #b4a5a5;
-  --muted-2: #938383;
-  --border: #443234;
-  --border-strong: #604447;
-  --accent: #d16b70;
-  --accent-hover: #e18a8d;
-  --accent-soft: #402729;
-  --accent-border: #684144;
+  --surface: #191516;
+  --surface-soft: #261e1f;
+  --surface-hover: #342628;
+  --text: #ded8d7;
+  --text-strong: #f3eeee;
+  --muted: #b1a6a5;
+  --muted-2: #938888;
+  --border: #403435;
+  --border-strong: #5c4749;
+  --accent: #d17b7e;
+  --accent-hover: #e19698;
+  --accent-soft: #3a292b;
+  --accent-border: #634448;
   --green: #8fbe9f;
   --green-soft: #2d4037;
   --red: #e39a9e;
-  --red-soft: #432d30;
-  background: linear-gradient(180deg, #151112, #30191c);
+  --red-soft: #432f31;
+  background: linear-gradient(180deg, #151314, #2b1b1d);
 }
 :root[data-theme="dark"] .sidebar .brand-mark,
-:root[data-theme="dark"] .sidebar .profile-avatar { color: #1a1314; background: #d16b70; }
+:root[data-theme="dark"] .sidebar .profile-avatar { color: #1a1314; background: #d17b7e; }
