@@ -1,80 +1,74 @@
 @import "tailwindcss";
 
 :root {
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  --bg: #f7f8fb;
-  --surface: #ffffff;
-  --surface-soft: #fafbfe;
-  --surface-hover: #f4f5f9;
-  --text: #20212c;
-  --text-strong: #171822;
-  --muted: #777b8c;
-  --muted-2: #9da1af;
-  --border: #e8e9ef;
-  --border-strong: #dcdde6;
-  --accent: #7053d6;
-  --accent-hover: #5f42c7;
-  --accent-soft: #f0ecff;
-  --accent-border: #dfd7ff;
-  --green: #218567;
-  --green-soft: #e9f6f1;
-  --blue: #467bc8;
-  --blue-soft: #edf4ff;
-  --amber: #b17925;
-  --amber-soft: #fff5e3;
-  --red: #bd4c55;
-  --red-soft: #fff0f0;
-  --shadow-sm: 0 1px 2px rgba(23, 24, 34, .04), 0 3px 10px rgba(23, 24, 34, .025);
-  --shadow-md: 0 14px 50px rgba(25, 26, 39, .17);
-  --auth-hero-bg: #efedf7;
-  --auth-hero-text: #272338;
-  --auth-hero-muted: #625e72;
-  --auth-hero-subtle: #797487;
-  --auth-hero-accent: #6349b6;
-  --auth-hero-border: rgba(91, 73, 150, .2);
-  --auth-hero-glow: rgba(119, 91, 220, .12);
+  --bg: #f3f3ef;
+  --surface: #fbfbf8;
+  --surface-soft: #f0f1ec;
+  --surface-hover: #e9ebe5;
+  --text: #3c433d;
+  --text-strong: #242a25;
+  --muted: #69716a;
+  --muted-2: #858c85;
+  --border: #dfe2db;
+  --border-strong: #cbd0c8;
+  --accent: #4b5c4f;
+  --accent-hover: #39493d;
+  --accent-soft: #e8ece7;
+  --accent-border: #cfd7cf;
+  --green: #4b5c4f;
+  --green-soft: #e8ece7;
+  --blue: #5c6860;
+  --blue-soft: #ebeeeb;
+  --amber: #786849;
+  --amber-soft: #efede6;
+  --red: #875b54;
+  --red-soft: #f0eae7;
+  --auth-hero-bg: #e9ece6;
+  --auth-hero-text: #242a25;
+  --auth-hero-muted: #59615a;
+  --auth-hero-subtle: #69716a;
+  --auth-hero-accent: #4b5c4f;
+  --auth-hero-border: #d3d8d1;
   color: var(--text);
   background: var(--bg);
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #111116;
-  --surface: #19191f;
-  --surface-soft: #1d1d24;
-  --surface-hover: #25252d;
-  --text: #d5d5df;
-  --text-strong: #f1f0f7;
-  --muted: #a0a0ae;
-  --muted-2: #777786;
-  --border: #2c2c35;
-  --border-strong: #3a3a45;
-  --accent: #9b84f0;
-  --accent-hover: #ad9bfa;
-  --accent-soft: #29233d;
-  --accent-border: #45386a;
-  --green: #64c5a5;
-  --green-soft: #1b302b;
-  --blue: #83a9ec;
-  --blue-soft: #202b3d;
-  --amber: #e4b762;
-  --amber-soft: #342b1c;
-  --red: #ed8a91;
-  --red-soft: #382326;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, .12), 0 4px 18px rgba(0, 0, 0, .09);
-  --shadow-md: 0 14px 50px rgba(0, 0, 0, .45);
-  --auth-hero-bg: #191724;
-  --auth-hero-text: #ffffff;
-  --auth-hero-muted: #b3b0c1;
-  --auth-hero-subtle: #aaa7ba;
-  --auth-hero-accent: #b6a6ff;
-  --auth-hero-border: rgba(158, 138, 236, .22);
-  --auth-hero-glow: rgba(119, 91, 220, .28);
+  --bg: #191d19;
+  --surface: #222722;
+  --surface-soft: #292f29;
+  --surface-hover: #303730;
+  --text: #d5dbd4;
+  --text-strong: #f0f2ed;
+  --muted: #a0a99f;
+  --muted-2: #828c82;
+  --border: #363d36;
+  --border-strong: #485148;
+  --accent: #a6b5a6;
+  --accent-hover: #c0cbbf;
+  --accent-soft: #303a31;
+  --accent-border: #485448;
+  --green: #a6b5a6;
+  --green-soft: #303a31;
+  --blue: #aab4ad;
+  --blue-soft: #303733;
+  --amber: #c1b18d;
+  --amber-soft: #39352d;
+  --red: #d0a39a;
+  --red-soft: #3b302d;
+  --auth-hero-bg: #222722;
+  --auth-hero-text: #f0f2ed;
+  --auth-hero-muted: #c0c8bf;
+  --auth-hero-subtle: #a0a99f;
+  --auth-hero-accent: #a6b5a6;
+  --auth-hero-border: #363d36;
 }
 
 * { box-sizing: border-box; }
@@ -86,7 +80,7 @@
 
 *::-webkit-scrollbar { width: 9px; height: 9px; }
 *::-webkit-scrollbar-track { background: transparent; }
-*::-webkit-scrollbar-thumb { border: 2px solid transparent; border-radius: 99px; background: color-mix(in srgb, var(--muted-2) 55%, transparent); background-clip: padding-box; }
+*::-webkit-scrollbar-thumb { border: 2px solid transparent; border-radius: 2px; background: color-mix(in srgb, var(--muted-2) 55%, transparent); background-clip: padding-box; }
 *::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--muted) 72%, transparent); background-clip: padding-box; }
 *::-webkit-scrollbar-corner { background: transparent; }
 
