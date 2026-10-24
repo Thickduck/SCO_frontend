@@ -4,12 +4,20 @@ A React, TypeScript, and Vite frontend for reviewing cloud inventory, utilizatio
 
 ## Run locally
 
-1. Start the SCO backend on `http://localhost:5001` and initialize its local DuckDB database with the backend's seed data.
+1. In `SCO_backend`, install dependencies, seed the demo accounts and generated data, and start the API:
+
+   ```sh
+   npm install
+   npm run seed
+   npm start
+   ```
+
+   Seeding loads `simulator/generated/resources.csv` and `simulator/generated/metrics.csv` into DuckDB. The backend also imports them on startup when the files change.
 2. In this directory, install dependencies and create the frontend environment file:
 
-   ```powershell
+   ```sh
    npm install
-   Copy-Item .env.example .env
+   cp .env.example .env
    ```
 
 3. Start the Vite development server:
@@ -19,6 +27,8 @@ A React, TypeScript, and Vite frontend for reviewing cloud inventory, utilizatio
    ```
 
 The frontend uses the `VITE_API_URL` setting for the API base URL. It defaults to `http://localhost:5001/api` when the variable is not set. The backend must allow requests from the Vite origin.
+
+To regenerate the simulator data, run `python simulator/simulator.py` from `SCO_backend`. The next backend startup detects the updated CSV files and refreshes the database tables.
 
 Create an account through the registration page, or sign in with an account configured in the backend's local database. The frontend stores the bearer token in browser `localStorage`, validates restored sessions through `/api/auth/me`, and removes invalid sessions.
 
