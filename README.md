@@ -1,75 +1,48 @@
-# React + TypeScript + Vite
+# SmartCloud Optimizer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React, TypeScript, and Vite frontend for reviewing cloud inventory, utilization, cost, and optimization opportunities.
 
-Currently, two official plugins are available:
+## Run locally
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+1. Start the SCO backend on `http://localhost:5001` and initialize its local DuckDB database with the backend's seed data.
+2. In this directory, install dependencies and create the frontend environment file:
 
-## React Compiler
+   ```powershell
+   npm install
+   Copy-Item .env.example .env
+   ```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+3. Start the Vite development server:
 
-## Expanding the ESLint configuration
+   ```powershell
+   npm run dev
+   ```
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+The frontend uses the `VITE_API_URL` setting for the API base URL. It defaults to `http://localhost:5001/api` when the variable is not set. The backend must allow requests from the Vite origin.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Create an account through the registration page, or sign in with an account configured in the backend's local database. The frontend stores the bearer token in browser `localStorage`, validates restored sessions through `/api/auth/me`, and removes invalid sessions.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Included workflows
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Authenticated sign-in and registration with field validation and password-strength feedback.
+- Editable personal profiles and shared company details, with company changes restricted by backend admin authorization.
+- Overview of monthly spend, inventory, alerts, forecasts, and pending recommendations.
+- Resource inventory filters for region, environment, and owner, with resource details and utilization history.
+- Resource-level utilization charts, p95/p99 metrics, and anomaly review.
+- Individual and batch recommendation actions, with savings estimates and risk labels.
+- Cost breakdowns by environment and owner, forecast projections, and before/after savings.
+- Alert review, a what-if savings simulator, plain-language explanations, downloadable exports, and sustainability estimates.
+- Persistent light and dark themes, responsive layouts, loading/error/empty states, and action feedback.
 
-```
+New databases seeded with `npm run seed` include an admin account: `admin@cloud.com` / `password123`. New accounts cannot grant themselves admin access; to grant an existing account access, update its `is_admin` flag in the DuckDB `users` table. The backend applies the `is_admin` column migration automatically when it starts against an existing database.
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+## Cost and safety notes
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+The interface displays estimates returned by the backend. Treat pricing and sustainability values as illustrative; actual costs and environmental impact depend on workload, provider pricing, and infrastructure. The simulator only requests an estimate and does not change cloud resources. Review generated exports before using them, and validate resize recommendations against p95/p99 peaks and service-level requirements.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Checks
 
+```powershell
+npm run build
+npm run lint
 ```

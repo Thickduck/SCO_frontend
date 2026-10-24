@@ -4,7 +4,15 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>my-react-app</title>
+    <meta name="theme-color" content="#f7f8fb" />
+    <meta name="description" content="Make cloud infrastructure transparent, efficient, and cost-effective." />
+    <title>SmartCloud Optimizer</title>
+    <script>
+      const savedTheme = localStorage.getItem('sco.theme')
+      document.documentElement.dataset.theme = savedTheme === 'dark' || savedTheme === 'light'
+        ? savedTheme
+        : window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    </script>
   </head>
   <body>
     <div id="root"></div>
