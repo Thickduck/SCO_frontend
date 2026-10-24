@@ -1,121 +1,135 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+import { Component, useEffect, useState } from 'react'
+import type { ErrorInfo, ReactNode } from 'react'
 import './App.css'
+import { AppShell } from './components/AppShell'
+import { Icon } from './components/Icon'
+import { AuthProvider } from './context/AuthContext'
+import { ThemeProvider } from './context/ThemeContext'
+import { useAuth } from './hooks/useAuth'
+import { useTheme } from './hooks/useTheme'
+import { ToastProvider } from './context/ToastContext'
+import { AiExplainPage } from './pages/AiExplainPage'
+import { AlertsPage } from './pages/AlertsPage'
+import { AnalyticsPage } from './pages/AnalyticsPage'
+import { CostsPage } from './pages/CostsPage'
+import { CompanyPage } from './pages/CompanyPage'
+import { DashboardPage } from './pages/DashboardPage'
+import { ExportPage } from './pages/ExportPage'
+import { ForecastPage } from './pages/ForecastPage'
+import { InventoryPage } from './pages/InventoryPage'
+import { LoginPage, RegisterPage } from './pages/AuthPages'
+import { ProfilePage } from './pages/ProfilePage'
+import { RecommendationsPage } from './pages/RecommendationsPage'
+import { SimulatorPage } from './pages/SimulatorPage'
+import { SustainabilityPage } from './pages/SustainabilityPage'
 
-function App() {
-  const [count, setCount] = useState(0)
+class PageErrorBoundary extends Component<
+  { children: ReactNode; onNavigate: (path: string) => void },
+  { hasError: boolean }
+> {
+  state = { hasError: false }
+
+  static getDerivedStateFromError() {
+    return { hasError: true }
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error('Page rendering failed:', error, info.componentStack)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="inline-error page-error" role="alert">
+          <strong>This page couldn’t be displayed.</strong>
+          <span>Your other workspace pages are still available.</span>
+          <button type="button" className="button button-secondary button-small" onClick={() => this.props.onNavigate('/')}>
+            Return to overview
+          </button>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
+
+function AppContent() {
+  const { user, loading, logout, updateProfile } = useAuth()
+  const { dark, toggle } = useTheme()
+  const [path, setPath] = useState(window.location.pathname)
+
+  useEffect(() => {
+    const onPopState = () => setPath(window.location.pathname)
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
+
+  useEffect(() => {
+    if (user && (path === '/login' || path === '/register')) {
+      window.history.replaceState({}, '', '/')
+    }
+  }, [user, path])
+
+  function navigate(destination: string) {
+    window.history.pushState({}, '', destination)
+    setPath(destination)
+    window.scrollTo({ top: 0, behavior: 'auto' })
+  }
+
+  function signOut() {
+    logout()
+    navigate('/login')
+  }
+
+  if (loading) {
+    return <div className="boot-screen"><span className="boot-mark"><Icon name="cloud" size={24} /></span><span className="spinner" /><p>Loading your workspace…</p></div>
+  }
+
+  if (!user) {
+    if (path !== '/register') return <LoginPage />
+    return <RegisterPage />
+  }
+
+  const pages: Record<string, ReactNode> = {
+    '/': <DashboardPage userName={user.name} />,
+    '/inventory': <InventoryPage />,
+    '/analytics': <AnalyticsPage />,
+    '/recommendations': <RecommendationsPage />,
+    '/costs': <CostsPage />,
+    '/alerts': <AlertsPage />,
+    '/forecast': <ForecastPage />,
+    '/simulator': <SimulatorPage />,
+    '/assistant': <AiExplainPage />,
+    '/export': <ExportPage />,
+    '/sustainability': <SustainabilityPage />,
+    '/company': <CompanyPage user={user} />,
+  }
+  if (path === '/profile') {
+    pages[path] = <ProfilePage user={user} onSave={updateProfile} />
+  }
+
+  if (path === '/login' || path === '/register') {
+    return <AppShell user={user} path="/" navigate={navigate} onLogout={signOut} onToggleTheme={toggle} dark={dark}><DashboardPage userName={user.name} /></AppShell>
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <AppShell user={user} path={path} navigate={navigate} onLogout={signOut} onToggleTheme={toggle} dark={dark}>
+      <PageErrorBoundary key={path} onNavigate={navigate}>
+        {pages[path] ?? <DashboardPage userName={user.name} />}
+      </PageErrorBoundary>
+    </AppShell>
+  )
+}
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+function App() {
+  return (
+    <ToastProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </ThemeProvider>
+    </ToastProvider>
   )
 }
 
