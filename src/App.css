@@ -10,10 +10,10 @@
   --muted-2: #8b9094;
   --border: #dfe1e3;
   --border-strong: #c9cccf;
-  --accent: #e3343d;
-  --accent-hover: #c92532;
-  --accent-soft: #fbe2e4;
-  --accent-border: #efb8bc;
+  --accent: #2f6fe6;
+  --accent-hover: #2159c9;
+  --accent-soft: #ebf2ff;
+  --accent-border: #bfd2fd;
   width: 252px; padding: 22px 15px 12px; background: var(--surface); border-right: 1px solid var(--border);
 }
 .brand, .auth-brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text-strong); text-align: left; }
