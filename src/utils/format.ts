@@ -1,3 +1,5 @@
+import type { Recommendation } from '../types/api'
+
 export function formatCurrency(value: number, compact = false) {
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
@@ -25,4 +27,38 @@ export function riskTone(value: string) {
 
 export function getDistinct<T>(items: T[], getValue: (item: T) => string) {
   return [...new Set(items.map(getValue).filter(Boolean))].sort((a, b) => a.localeCompare(b))
+}
+
+export function sumRecommendationSavings(recommendations: Recommendation[]) {
+  const byResource = new Map<string, { saving: number; monthlyCost?: number }>()
+  for (const recommendation of recommendations) {
+    const current = byResource.get(recommendation.resource_id) ?? { saving: 0, monthlyCost: recommendation.monthly_cost }
+    current.saving += recommendation.estimated_monthly_saving
+    current.monthlyCost = recommendation.monthly_cost ?? current.monthlyCost
+    byResource.set(recommendation.resource_id, current)
+  }
+  return [...byResource.values()].reduce(
+    (sum, item) => sum + Math.min(item.saving, item.monthlyCost ?? item.saving),
+    0,
+  )
+}
+
+export function recommendationSavingsByEnvironment(recommendations: Recommendation[]) {
+  const byResource = new Map<string, { environment: string; saving: number; monthlyCost?: number }>()
+  for (const recommendation of recommendations) {
+    const current = byResource.get(recommendation.resource_id) ?? {
+      environment: recommendation.environment ?? 'Other',
+      saving: 0,
+      monthlyCost: recommendation.monthly_cost,
+    }
+    current.saving += recommendation.estimated_monthly_saving
+    current.monthlyCost = recommendation.monthly_cost ?? current.monthlyCost
+    byResource.set(recommendation.resource_id, current)
+  }
+  const totals: Record<string, number> = {}
+  for (const item of byResource.values()) {
+    totals[item.environment] = (totals[item.environment] ?? 0)
+      + Math.min(item.saving, item.monthlyCost ?? item.saving)
+  }
+  return totals
 }

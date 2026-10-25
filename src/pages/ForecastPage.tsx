@@ -38,8 +38,8 @@ export function ForecastPage() {
             </div>
           </Panel>
           <Panel title="Usage trend" subtitle="Based on current utilization and forecast signals">
-            <div className="trend-insight"><span className={`trend-icon ${data.trend.trend.toLowerCase()}`}><Icon name="forecast" size={21} /></span><div><Tag tone={data.trend.trend.toLowerCase() === 'increasing' ? 'amber' : 'success'}>{data.trend.trend} trend</Tag><h2>Projected growth: {data.trend.projected_growth_rate_pct}%</h2><p>{data.trend.recommendation}</p></div></div>
-            <div className="assumption-note"><Icon name="assistant" size={15} /><span>This is an illustrative projection from the backend’s current estimate, not a guaranteed bill. Actual costs vary with usage, pricing, and applied changes.</span></div>
+            <div className="trend-insight"><span className={`trend-icon ${data.trend.trend.toLowerCase()}`}><Icon name="forecast" size={21} /></span><div><Tag tone={data.trend.trend.toLowerCase() === 'increasing' ? 'amber' : 'success'}>{data.trend.trend} trend</Tag><h2>Projected utilization change: {data.trend.projected_growth_rate_pct}%</h2><p>{data.trend.recommendation}</p><small>{data.trend.method}</small></div></div>
+            <div className="assumption-note"><Icon name="assistant" size={15} /><span>{data.cost.method ?? 'Projection based on simulated inventory data, not a guaranteed bill.'} Actual spend changes require provider billing and pricing data.</span></div>
           </Panel>
         </>
       )}

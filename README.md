@@ -7,6 +7,7 @@ A React, TypeScript, and Vite frontend for reviewing cloud inventory, utilizatio
 1. In `SCO_backend`, install dependencies, seed the demo accounts and generated data, and start the API:
 
    ```sh
+   python simulator/simulator.py
    npm install
    npm run seed
    npm start
@@ -35,20 +36,22 @@ Create an account through the registration page, or sign in with an account conf
 ## Included workflows
 
 - Authenticated sign-in and registration with field validation and password-strength feedback.
+- Engineer, finance, and leadership workspace navigation with role-focused pages. This remains a single shared demo workspace, not tenant-isolated data.
 - Editable personal profiles and shared company details, with company changes restricted by backend admin authorization.
 - Overview of monthly spend, inventory, alerts, forecasts, and pending recommendations.
 - Resource inventory filters for region, environment, and owner, with resource details and utilization history.
-- Resource-level utilization charts, p95/p99 metrics, and anomaly review.
-- Dataset-driven recommendations for resources unattached and inactive across at least 14 days of metrics, and VMs with at least 14 days of data, p95/p99 CPU at or below 20%/30%, p95/p99 memory at or below 50%/60%, and no CPU or memory peaks above 90%. Individual and batch actions retain review status while a candidate remains eligible.
-- Cost breakdowns by environment and owner, forecast projections, and before/after savings.
-- Alert review, a what-if savings simulator, plain-language explanations, downloadable exports, and sustainability estimates.
+- Fleet-wide CPU, memory, disk, and network utilization, filters by region/environment/team, full 30-day resource history, p95/p99 metrics, and anomaly review.
+- Dataset-driven recommendations for unattached resources and idle VMs. VM resizing requires at least 14 days of data, p95/p99 CPU at or below 20%/30%, p95/p99 memory at or below 50%/60%, no CPU or memory peaks above 90%, and at least 4 vCPU. Targets halve vCPU and RAM while preserving disk. Off-hours schedules require measured p95 CPU at or below 10% and memory at or below 30%. Review status does not apply infrastructure changes.
+- Cost breakdowns by environment and owner, utilization-trend forecasts, configurable monthly budget alerts, and before/after estimates capped at each resource's listed monthly cost.
+- Data-backed utilization/capacity/budget alerts, a recommendation-driven what-if simulator, local rule-based explanations, live inventory CSV and review-only IaC exports, and illustrative sustainability estimates.
+- A checked-in assumptions sheet at `SCO_backend/simulator/assumptions.json`, alongside generated dataset assumptions.
 - Persistent light and dark themes, responsive layouts, loading/error/empty states, and action feedback.
 
 New databases seeded with `npm run seed` include an admin account: `admin@cloud.com` / `password123`. New accounts cannot grant themselves admin access; to grant an existing account access, update its `is_admin` flag in the DuckDB `users` table. The backend applies the `is_admin` column migration automatically when it starts against an existing database.
 
 ## Cost and safety notes
 
-The interface displays estimates returned by the backend. Treat pricing and sustainability values as illustrative; actual costs and environmental impact depend on workload, provider pricing, and infrastructure. Orphaned-resource suggestions use the resource's listed monthly cost; right-sizing suggestions estimate savings as 25% of that cost. Review generated exports before using them, and validate resize recommendations against p95/p99 peaks and service-level requirements. Recommendations are review suggestions only and do not change cloud resources.
+The simulator's INR prices are illustrative, not provider quotes. Forecasts compare the previous 7 days with the latest 7 days of price-weighted utilization and are not a billing feed. Sustainability values apply the explicit factors in the assumptions sheet to pending estimated savings. Review generated exports before using them, validate resizing against workload peaks and service-level requirements, and validate off-hours schedules against overnight jobs and availability needs. Recommendation actions only record review status; this prototype does not connect to a cloud provider or change resources.
 
 ## Checks
 

@@ -2,7 +2,7 @@ import type { Metric } from '../types/api'
 
 export function MetricChart({ data }: { data: Metric[] }) {
   if (!data.length) return <div className="chart-empty">Utilization history will appear when metrics are available.</div>
-  const points = [...data].reverse().slice(-36)
+  const points = data.slice(-2880)
   const line = (key: 'cpu_pct' | 'memory_pct' | 'disk_pct') =>
     points.map((point, index) => {
       const x = 8 + (index / Math.max(points.length - 1, 1)) * 584
@@ -19,6 +19,29 @@ export function MetricChart({ data }: { data: Metric[] }) {
         <polyline points={line('cpu_pct')} className="chart-line chart-line-cpu" />
       </svg>
       <div className="chart-axis"><span>Earlier</span><span>Latest</span></div>
+    </div>
+  )
+}
+
+export function NetworkChart({ data }: { data: Metric[] }) {
+  if (!data.length) return <div className="chart-empty">Network history will appear when metrics are available.</div>
+  const points = data.slice(-2880)
+  const max = Math.max(...points.flatMap((point) => [point.network_in_mb, point.network_out_mb]), 1)
+  const line = (key: 'network_in_mb' | 'network_out_mb') =>
+    points.map((point, index) => {
+      const x = 8 + (index / Math.max(points.length - 1, 1)) * 584
+      const y = 152 - (Math.min(Math.max(point[key], 0), max) / max) * 132
+      return `${x},${y}`
+    }).join(' ')
+  return (
+    <div className="chart-wrap">
+      <div className="chart-legend"><span><i className="legend-cpu" />Inbound MB / 15 min</span><span><i className="legend-memory" />Outbound MB / 15 min</span></div>
+      <svg className="line-chart" viewBox="0 0 600 170" role="img" aria-label="Network traffic history">
+        {[20, 60, 100, 140].map((y) => <line key={y} x1="8" x2="592" y1={y} y2={y} className="chart-grid" />)}
+        <polyline points={line('network_in_mb')} className="chart-line chart-line-cpu" />
+        <polyline points={line('network_out_mb')} className="chart-line chart-line-memory" />
+      </svg>
+      <div className="chart-axis"><span>Earlier</span><span>Latest · peak {max.toFixed(1)} MB</span></div>
     </div>
   )
 }

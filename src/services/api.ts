@@ -9,10 +9,12 @@ import type {
   CostSummary,
   Explanation,
   ExportResult,
+  FleetMetrics,
   Forecast,
   InventoryResource,
   InventoryStats,
   Metric,
+  OptimizationRun,
   Percentiles,
   ProfileUpdate,
   Recommendation,
@@ -71,12 +73,15 @@ export const api = {
     request<CompanyDetails>('/company', { method: 'PUT', body: JSON.stringify(company) }),
   inventory: () => request<InventoryResource[]>('/inventory'),
   inventoryStats: () => request<InventoryStats>('/inventory/stats'),
+  fleetMetrics: () => request<FleetMetrics>('/metrics/fleet'),
   resource: (id: string) => request<InventoryResource>(`/resources/${encodeURIComponent(id)}`),
   metrics: (id: string) => request<Metric[]>(`/metrics/${encodeURIComponent(id)}`),
   percentiles: (id: string) =>
     request<Percentiles>(`/metrics/${encodeURIComponent(id)}/percentiles`),
   anomalies: () => request<Metric[]>('/metrics/anomalies'),
   recommendations: () => request<Recommendation[]>('/recommendations'),
+  runOptimization: (maxBudget: number) =>
+    post<OptimizationRun>('/optimization/run', { maxBudget }),
   updateRecommendation: (id: string, status: 'Applied' | 'Dismissed') =>
     post<RecommendationUpdate>(`/recommendations/${encodeURIComponent(id)}/action`, { status }),
   batchApplyRecommendations: (rec_ids: string[]) =>
@@ -92,8 +97,8 @@ export const api = {
       shutdownDevAtNight,
       rightsizeUnderutilized,
     }),
-  explain: (resource_id: string, metrics_summary: string) =>
-    post<Explanation>('/ai/explain', { resource_id, metrics_summary }),
+  explain: (resource_id: string) =>
+    post<Explanation>('/ai/explain', { resource_id }),
   export: (format: 'terraform' | 'csv' | 'bash') =>
     request<ExportResult>(`/export/${format}`),
   sustainability: () => request<Sustainability>('/sustainability'),

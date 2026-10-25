@@ -12,6 +12,7 @@ const emptyCompany: CompanyDetails = {
   industry: '',
   contact_email: '',
   address: '',
+  monthly_budget: 1000000,
 }
 
 export function CompanyPage({ user }: { user: User }) {
@@ -58,7 +59,9 @@ export function CompanyPage({ user }: { user: User }) {
               <label className="form-field"><span>Industry</span><input value={values.industry} onChange={(event) => setCompany({ ...values, industry: event.target.value })} readOnly={!isAdmin} maxLength={120} /></label>
               <label className="form-field"><span>Contact email</span><input type="email" value={values.contact_email} onChange={(event) => setCompany({ ...values, contact_email: event.target.value })} readOnly={!isAdmin} maxLength={254} /></label>
               <label className="form-field company-address"><span>Address</span><textarea value={values.address} onChange={(event) => setCompany({ ...values, address: event.target.value })} readOnly={!isAdmin} rows={3} maxLength={500} /></label>
+              <label className="form-field"><span>Monthly budget (INR)</span><input type="number" min="0" step="1000" value={values.monthly_budget} onChange={(event) => setCompany({ ...values, monthly_budget: Number(event.target.value) })} readOnly={!isAdmin} /></label>
             </div>
+            <p className="form-hint">The demo default is ₹10,00,000. Set to 0 to disable budget alerts. Budget alerts compare this value with listed monthly inventory prices.</p>
             {error && <div className="form-error" role="alert">{error}</div>}
             {isAdmin && <Button type="submit" disabled={saving || query.loading}>{saving && <span className="button-spinner" />}Save company details</Button>}
           </form>

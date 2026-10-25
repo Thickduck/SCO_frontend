@@ -35,6 +35,15 @@ export function CostsPage() {
             <Panel title="Spend by team" subtitle="Monthly cost grouped by resource owner">
               <Bars values={Object.entries(data.breakdown.by_department).map(([label, value]) => ({ label, value }))} color="blue" />
             </Panel>
+            <Panel title="Savings by environment" subtitle="Potential monthly savings from pending recommendations, capped at listed cost per resource">
+              <Bars values={Object.entries(data.breakdown.potential_savings_by_environment).map(([label, value]) => ({ label, value }))} color="green" />
+            </Panel>
+            <Panel title="Projected spend by environment" subtitle="Current listed cost less pending recommendation estimates">
+              <Bars values={Object.entries(data.breakdown.by_environment).map(([label, value]) => ({
+                label,
+                value: Math.max(0, value - (data.breakdown.potential_savings_by_environment[label] ?? 0)),
+              }))} color="blue" />
+            </Panel>
           </div>
           <Panel title="Current spend vs. optimized" subtitle="Comparison assumes pending recommendations are accepted">
             <div className="comparison">
@@ -43,7 +52,7 @@ export function CostsPage() {
               <div className="comparison-foot"><span><i className="legend-cpu" />Projected spend</span><span><i className="legend-memory" />Savings opportunity</span></div>
             </div>
           </Panel>
-          <Panel title="Projected spend" subtitle="Illustrative trajectory at the current growth rate">
+          <Panel title="Projected spend" subtitle={data.forecast.method ?? 'Illustrative trajectory from the latest utilization trend'}>
             <div className="forecast-cards">
               {[['Today', data.forecast.current_monthly_spend], ['30 days', data.forecast.forecast_30_days], ['60 days', data.forecast.forecast_60_days], ['90 days', data.forecast.forecast_90_days]].map(([period, value]) => <div className="forecast-card" key={String(period)}><span>{period}</span><strong>{formatCurrency(Number(value))}</strong></div>)}
             </div>

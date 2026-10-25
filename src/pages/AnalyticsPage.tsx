@@ -2,13 +2,14 @@ import { useCallback, useMemo, useState } from 'react'
 import { api } from '../services/api'
 import type { Metric, Percentiles } from '../types/api'
 import { useApiQuery } from '../hooks/useApiQuery'
-import { MetricChart } from '../components/Charts'
+import { MetricChart, NetworkChart } from '../components/Charts'
 import { Icon } from '../components/Icon'
 import { Button, EmptyState, LoadState, PageHeader, Panel, SelectField, StatCard, Tag } from '../components/UI'
 import { formatDate, formatPercentile, getDistinct } from '../utils/format'
 
 export function AnalyticsPage() {
   const inventory = useApiQuery(api.inventory, 'analytics-inventory')
+  const fleet = useApiQuery(api.fleetMetrics, 'analytics-fleet')
   const [selectedId, setSelectedId] = useState('')
   const [region, setRegion] = useState('All regions')
   const [environment, setEnvironment] = useState('All environments')
@@ -32,12 +33,22 @@ export function AnalyticsPage() {
   }, [activeId])
   const metrics = useApiQuery(loadMetrics, activeId)
   const selected = selectedResource
-  const latest = metrics.data?.history[0]
+  const latest = metrics.data?.history.at(-1)
+  const visibleFleet = (fleet.data?.resources ?? []).filter((resource) =>
+    (region === 'All regions' || resource.region === region) &&
+    (environment === 'All environments' || resource.environment === environment) &&
+    (team === 'All teams' || resource.owner === team),
+  )
+  const fleetAverage = (key: 'avg_cpu' | 'avg_memory' | 'avg_disk' | 'avg_network_in' | 'avg_network_out') => {
+    const values = visibleFleet.map((resource) => resource[key]).filter((value): value is number => value != null)
+    return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0
+  }
 
   return (
     <>
       <PageHeader eyebrow="UTILIZATION & PERFORMANCE" title="Resource analytics" description="Inspect utilization over time, compare percentiles, and identify unusual readings before changing capacity." action={<Button variant="secondary" onClick={() => void metrics.reload()} disabled={metrics.loading}><Icon name="clock" size={15} /> Refresh metrics</Button>} />
       <LoadState loading={inventory.loading} error={inventory.error} onRetry={() => void inventory.reload()} />
+      <LoadState loading={fleet.loading} error={fleet.error} onRetry={() => void fleet.reload()} />
       {inventory.data && (
         <>
           <div className="analytics-filters">
@@ -46,6 +57,34 @@ export function AnalyticsPage() {
             <SelectField ariaLabel="Filter analytics by team" value={team} onChange={setTeam} options={['All teams', ...getDistinct(resources, (item) => item.owner)]} />
             <SelectField label="Resource" ariaLabel="Select resource" value={activeId} onChange={setSelectedId} options={visibleResources.length ? visibleResources.map((resource) => resource.resource_id) : ['']} />
           </div>
+          {fleet.data && (
+            <>
+              <div className="stat-grid stat-grid-four">
+                <StatCard label="Fleet average CPU" value={`${fleetAverage('avg_cpu').toFixed(1)}%`} caption="30-day average" icon="cpu" tone="blue" />
+                <StatCard label="Fleet average memory" value={`${fleetAverage('avg_memory').toFixed(1)}%`} caption="30-day average" icon="analytics" tone="violet" />
+                <StatCard label="Fleet average storage" value={`${fleetAverage('avg_disk').toFixed(1)}%`} caption="30-day average" icon="inventory" tone="amber" />
+                <StatCard label="Network in / out" value={`${fleetAverage('avg_network_in').toFixed(1)} / ${fleetAverage('avg_network_out').toFixed(1)} MB`} caption="Per 15-minute interval, fleet average" icon="cloud" tone="green" />
+              </div>
+              <Panel title="Fleet utilization" subtitle={`30-day averages and peak readings · ${visibleFleet.length} resources match these filters`}>
+                <div className="table-scroll">
+                  <table className="data-table">
+                    <thead><tr><th>Resource</th><th>Environment</th><th>Owner</th><th>CPU avg / p95</th><th>Memory avg / p95</th><th>Disk avg</th><th>Network in / out</th><th>Samples</th></tr></thead>
+                    <tbody>{visibleFleet.map((resource) => (
+                      <tr key={resource.resource_id} className="clickable-row" onClick={() => setSelectedId(resource.resource_id)}>
+                        <td><strong>{resource.name}</strong><span className="table-subtext">{resource.resource_id}</span></td>
+                        <td>{resource.environment}</td><td>{resource.owner}</td>
+                        <td>{resource.avg_cpu?.toFixed(1) ?? '—'}% / {resource.p95_cpu?.toFixed(1) ?? '—'}%</td>
+                        <td>{resource.avg_memory?.toFixed(1) ?? '—'}% / {resource.p95_memory?.toFixed(1) ?? '—'}%</td>
+                        <td>{resource.avg_disk?.toFixed(1) ?? '—'}%</td>
+                        <td>{resource.avg_network_in?.toFixed(1) ?? '—'} / {resource.avg_network_out?.toFixed(1) ?? '—'} MB</td>
+                        <td>{resource.sample_count?.toLocaleString('en-IN') ?? '—'}</td>
+                      </tr>
+                    ))}</tbody>
+                  </table>
+                </div>
+              </Panel>
+            </>
+          )}
           {selected && <div className="selected-resource-strip"><span><Icon name="cpu" size={17} />{selected.name}</span><span>{selected.region}</span><Tag tone="blue">{selected.environment}</Tag><span>Owned by {selected.owner}</span></div>}
           <LoadState loading={metrics.loading} error={metrics.error} onRetry={() => void metrics.reload()} />
           {metrics.data && selected && (
@@ -56,8 +95,11 @@ export function AnalyticsPage() {
                 <StatCard label="Latest disk" value={latest ? `${latest.disk_pct.toFixed(1)}%` : 'Unavailable'} caption="Recent measurement" icon="inventory" tone="amber" />
                 <StatCard label="Network in / out" value={latest ? `${latest.network_in_mb.toFixed(1)} / ${latest.network_out_mb.toFixed(1)} MB` : 'Unavailable'} caption="Latest reading" icon="cloud" tone="green" />
               </div>
-              <Panel title="Utilization history" subtitle="Recent CPU, memory, and disk usage returned by the metrics API" action={<Tag>{metrics.data.history.length} readings</Tag>}>
+              <Panel title="30-day utilization history" subtitle="CPU, memory, and disk usage from the complete simulator time series" action={<Tag>{metrics.data.history.length.toLocaleString('en-IN')} readings</Tag>}>
                 {metrics.data.history.length ? <MetricChart data={metrics.data.history} /> : <EmptyState title="No metrics found" message="The selected resource does not yet have utilization history." icon="analytics" />}
+              </Panel>
+              <Panel title="Network history" subtitle="Inbound and outbound MB per 15-minute interval">
+                <NetworkChart data={metrics.data.history} />
               </Panel>
               <div className="content-grid-two">
                 <Panel title="Peak-aware sizing" subtitle="Percentiles give context beyond average utilization">
